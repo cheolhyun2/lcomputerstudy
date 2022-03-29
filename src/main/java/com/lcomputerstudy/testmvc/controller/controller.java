@@ -59,7 +59,7 @@ public class controller extends HttpServlet {
 		
 		String idx;
 		BoardService boardService = null;
-		Comment comment;
+		Comment comment = null;
 		boolean isRedirected = false;
 		
 		switch (command) {
@@ -104,7 +104,6 @@ public class controller extends HttpServlet {
 				
 				userService = UserService.getInstance();
 				userService.insertUser(user);
-						
 				view = "user/insert-result";
 				break;	
 				
@@ -201,32 +200,47 @@ public class controller extends HttpServlet {
 					// 서비스 호출하여 데이터 결과 리턴 받음
 					boardService = BoardService.getInstance();
 					board = boardService.getDetail(board);
-					
+									
 					request.setAttribute("board", board);
 					
 					view = "boardDetail";
 					break;
 				
-				case "/comment-write.do":
-					comment = new Comment();
-					comment.setB_idx(Integer.parseInt(request.getParameter("b_idx")));
-					comment.setC_idx(Integer.parseInt(request.getParameter("c_idx")));
-					comment.setC_comment(request.getParameter("c_comment"));
-					comment.setC_date(request.getParameter("c_cdate"));
-					comment.setC_order(Integer.parseInt(request.getParameter("c_order")));
-					comment.setC_group(Integer.parseInt(request.getParameter("c_group")));
-					comment.setC_depth(Integer.parseInt(request.getParameter("c_depth")));
-					comment.setB_idx(board.getB_idx());
-					boardService = BoardService.getInstance();
-					boardService.comment(board);
-									
-					isRedirected = true;
-					view = "board-Detail.do";
-					break;
-				
-				case "/boardEdit.do":
+				case "/commentProcess.do":
 					board = new Board();
 					comment = new Comment();
+					comment.setB_idx(Integer.parseInt(request.getParameter("b_idx")));
+					comment.setC_comment(request.getParameter("c_comment"));
+					comment.setC_group(0);
+					comment.setC_order(1);
+					comment.setC_depth(0);
+					boardService = BoardService.getInstance();
+					//boardService.getCommentList(board);
+					boardService.comment(comment);
+									
+					isRedirected = true;
+					view = "board-Detail.do?b_idx="+comment.getB_idx();
+					break;
+					
+				case "/commentReplyProcess.do":
+					board = new Board();
+					comment = new Comment();
+					
+					comment.setB_idx(Integer.parseInt(request.getParameter("b_idx")));
+					comment.setC_comment(request.getParameter("c_comment"));
+					comment.setC_group(Integer.parseInt(request.getParameter("c_group")));
+					comment.setC_order(Integer.parseInt(request.getParameter("c_order")));
+					comment.setC_depth(Integer.parseInt(request.getParameter("c_depth")));
+					boardService = BoardService.getInstance();
+					boardService.commentreplyform(comment);
+					isRedirected = true;
+					view = "board-Detail.do?b_idx="+comment.getB_idx();
+					break;
+					
+				
+								
+				case "/boardEdit.do":
+					board = new Board();
 					board.setB_idx(Integer.parseInt(request.getParameter("b_idx")));
 					boardService = BoardService.getInstance();
 					board = boardService.getDetail(board);
@@ -295,14 +309,14 @@ public class controller extends HttpServlet {
 					session = request.getSession();
 					
 					board = (Board)session.getAttribute("board");
-					comment = new Comment();
+					
 					
 					comment.setC_idx(Integer.parseInt(request.getParameter("c_idx")));
 					comment.setC_comment(request.getParameter("c_comment"));
 					comment.setC_date(request.getParameter("c_cdate"));
-					comment.setC_order(Integer.parseInt(request.getParameter("b_order")));
-					comment.setC_group(Integer.parseInt(request.getParameter("b_group")));
-					comment.setC_depth(Integer.parseInt(request.getParameter("b_depth")));
+					comment.setC_order(Integer.parseInt(request.getParameter("c_order")));
+					comment.setC_group(Integer.parseInt(request.getParameter("c_group")));
+					comment.setC_depth(Integer.parseInt(request.getParameter("c_depth")));
 					comment.setB_idx(board.getB_idx());
 					
 					boardService = BoardService.getInstance();

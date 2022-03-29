@@ -10,6 +10,7 @@ import java.util.List;
 import com.lcomputerstudy.testmvc.database.DBConnection;
 import com.lcomputerstudy.testmvc.vo.Board;
 import com.lcomputerstudy.testmvc.vo.Comment;
+
 import com.lcomputerstudy.testmvc.vo.Pagination;
 import com.lcomputerstudy.testmvc.vo.User;
 
@@ -171,6 +172,7 @@ public class BoardDAO {
        	       	board.setB_group(rs.getInt("b_group"));
        	       	board.setB_order(rs.getInt("b_order"));
        	       	board.setB_depth(rs.getInt("b_depth"));
+       	       	Comment comment = new Comment();
        	       	User user = new User();
        	       	user.setU_name(rs.getString("u_name"));
        	       	board.setUser(user);
@@ -268,7 +270,7 @@ public class BoardDAO {
 			pstmt.executeUpdate();
 					
 		} catch( Exception ex) {
-			System.out.println("SQLException : "+ ex.getMessage());
+			 ex.printStackTrace();
 		
 		} finally {
 			try {
@@ -287,29 +289,22 @@ public class BoardDAO {
 		 
 		try {
 			conn = DBConnection.getConnection();
-			String sql =  "select *\n"
-					+ "from comment ta \n"
-					+ "order by c_group desc, order asc \n"
-					+ "update comment set c_order = c_order +1 where c_group >= ? c_order > ?";
+						
+			String sql = "insert into comment (c_comment, c_date, b_idx, c_group, c_order, c_depth) values (?, now(), ?, 0, 1, 0)";
 			pstmt = conn.prepareStatement(sql);
-			pstmt.setInt(1, comment.getC_order());
-			pstmt.setInt(2, comment.getC_group());
+			pstmt.setString(1, comment.getC_comment());
+			pstmt.setInt(2, comment.getB_idx());
 			pstmt.executeUpdate();
 			pstmt.close();
 			
-			sql = "insert into comment (c_comment, c_date, c_order, c_group, c_depth, c_idx) values (?, ?, now(), ?, ?, ?, ?) ";
+			sql = "update comment set c_group = last_insert_id() where c_idx = last_insert_id()";
 			pstmt = conn.prepareStatement(sql);
-			pstmt.setString(1, comment.getC_comment());
-			pstmt.setString(2, comment.getC_date());
-			pstmt.setInt(3, comment.getC_order()+1);
-			pstmt.setInt(4, comment.getC_group());
-			pstmt.setInt(5, comment.getC_depth()+1);
-			pstmt.setInt(6, comment.getC_idx());
 			pstmt.executeUpdate();
-				
-		} catch( Exception ex) {
-			System.out.println("SQLException : "+ ex.getMessage());
+			
+			
 		
+		} catch( Exception ex) {
+			ex.printStackTrace();
 		} finally {
 			try {
 				if (pstmt != null) pstmt.close();
@@ -318,8 +313,6 @@ public class BoardDAO {
 				e.printStackTrace();
 			}
 		}
-		
-		
 	}
 
 	public List<Comment> getCommentList(Board board) {
@@ -364,7 +357,89 @@ public class BoardDAO {
 		
 		return list;
 	}
+	
+	public void commentreplyform(Comment comment) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		
+		 
+		try {
+			conn = DBConnection.getConnection();
+			
+						
+			String sql = "insert into comment (c_comment, b_idx, c_group, c_order, c_depth) values (?, ?, ?, ?, ?)";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, comment.getC_comment());
+			pstmt.setInt(2, comment.getB_idx());
+			pstmt.setInt(3, comment.getC_group());
+			pstmt.setInt(4, comment.getC_order()+1);
+			pstmt.setInt(5, comment.getC_depth()+1);
+			pstmt.executeUpdate();
+			pstmt.close();	
+			
+		    sql = "update comment set c_order = c_order+1 where c_group = ? and c_order > ?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, comment.getC_group());
+			pstmt.setInt(2, comment.getC_order()+1);
+			pstmt.executeUpdate();
+					
+		
+		
+				
+		} catch( Exception ex) {
+			ex.printStackTrace();
+		} finally {
+			try {
+				if (pstmt != null) pstmt.close();
+				if (conn != null) conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public List<Comment> getCommentList2(Board board) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		List<Comment> list2 = null; 
+		 
+		try {
+			conn = DBConnection.getConnection();
 
+			String sql = "select * from comment where b_idx=?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, board.getB_idx());
+			rs = pstmt.executeQuery();
+	       
+			list2 = new ArrayList<Comment>();
+			
+			while(rs.next()){     
+		    	Comment comment = new Comment();
+		       	comment.setC_idx(rs.getInt("c_idx"));
+	       	   	comment.setB_idx(rs.getInt("b_idx"));
+	       	   	comment.setC_comment(rs.getString("c_comment"));
+	       	    comment.setC_order(rs.getInt("c_order"));
+	       	   	comment.setC_group(rs.getInt("c_group"));
+	       	   	comment.setC_depth(rs.getInt("c_depth"));
+	       	         	  	
+	       	   	list2.add(comment);
+			}
+		} catch( Exception ex) {
+			ex.printStackTrace();
+		} finally {
+			try {
+				if (pstmt != null) pstmt.close();
+				if (conn != null) conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return list2;
+	}
+	
 	
 }
 

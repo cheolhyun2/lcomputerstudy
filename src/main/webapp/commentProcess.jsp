@@ -9,9 +9,9 @@
 <body>
         <form method="post" action="boardDetail.do" >
         	
-      	  	<input type="hidden" name="b_group" value="${board.b_group}">
-          	<input type="hidden" name="b_order" value="${board.b_order}">
-          	<input type="hidden" name="b_depth" value="${board.b_depth}">
+      	  	<input type="hidden" name="c_group" value="${comment.c_group}">
+          	<input type="hidden" name="c_order" value="${comment.c_order}">
+          	<input type="hidden" name="c_depth" value="${comment.c_depth}">
 	   		
 	   	<p> 댓글내용 : <textarea name="c_comment" rows="5" cols="100"></textarea></p>
 	   			   		

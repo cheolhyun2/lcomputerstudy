@@ -7,6 +7,7 @@ import com.lcomputerstudy.testmvc.dao.BoardDAO;
 import com.lcomputerstudy.testmvc.dao.UserDAO;
 import com.lcomputerstudy.testmvc.vo.Board;
 import com.lcomputerstudy.testmvc.vo.Comment;
+
 import com.lcomputerstudy.testmvc.vo.Pagination;
 import com.lcomputerstudy.testmvc.vo.User;
 
@@ -57,5 +58,23 @@ public class BoardService {
 	public void reply(Board board) {
 		dao.reply(board);
 	}
+
+	public void comment(Comment comment) {
+		dao.comment(comment);
+		
+			
+	}
+	public void getCommentList(Board board) {
+		dao.getCommentList(board);
+	}
+
+	public void commentreplyform(Comment comment) {
+		dao.commentreplyform(comment);
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
 
 }
