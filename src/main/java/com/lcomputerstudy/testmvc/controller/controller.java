@@ -2,6 +2,8 @@ package com.lcomputerstudy.testmvc.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -217,15 +219,16 @@ public class controller extends HttpServlet {
 					boardService = BoardService.getInstance();
 					//boardService.getCommentList(board);
 					boardService.comment(comment);
+					
 									
 					isRedirected = true;
 					view = "board-Detail.do?b_idx="+comment.getB_idx();
 					break;
 					
-				case "/commentReplyProcess.do":
+				case "/commentReplyForm.do":
 					board = new Board();
 					comment = new Comment();
-					
+										
 					comment.setB_idx(Integer.parseInt(request.getParameter("b_idx")));
 					comment.setC_comment(request.getParameter("c_comment"));
 					comment.setC_group(Integer.parseInt(request.getParameter("c_group")));
@@ -233,8 +236,16 @@ public class controller extends HttpServlet {
 					comment.setC_depth(Integer.parseInt(request.getParameter("c_depth")));
 					boardService = BoardService.getInstance();
 					boardService.commentreplyform(comment);
-					isRedirected = true;
-					view = "board-Detail.do?b_idx="+comment.getB_idx();
+					
+					boardService.getCommentList(board);
+					List<Comment> commentList = boardService.getCommentList(board);
+					
+					request.setAttribute("board", board);
+					request.setAttribute("comment", comment);
+					request.setAttribute("comment-list", commentList);
+					
+					
+					view = "comment-list";
 					break;
 					
 				
@@ -285,6 +296,7 @@ public class controller extends HttpServlet {
 					
 					view = "reply";
 					request.setAttribute("board", board);
+				
 					break;
 					
 				case "/replyProcess.do":

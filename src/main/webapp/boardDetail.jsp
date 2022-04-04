@@ -87,7 +87,7 @@
 		<input type="hidden" name="c_comment" value="">
 	</form>
  
- 	<table>
+ 	<table id="commentListTbl">
  		<c:forEach items="${board.commentList}" var="comment" varStatus="status">
 			<tr>
 				<td>댓글</td>
@@ -127,11 +127,12 @@
 		
 		$.ajax({
 		  method: "POST",
-		  url: "commnetreplyform.do",
-		  data: { b_idx: b_idx, c_group: group, c_order: order, c_depth: depth, c_comment:, comment }
+		  url: "commentReplyForm.do",
+		  data: { b_idx: b_idx, c_group: group, c_order: order, c_depth: depth, c_comment: comment }
 		})
 		.done(function( html ) {
-		  console.log(html);
+		  //console.log(html);
+		  $('#commentListTbl').html(html);
 		});
 	});
 	$(document).on('click', '.commentCancel', function () {
