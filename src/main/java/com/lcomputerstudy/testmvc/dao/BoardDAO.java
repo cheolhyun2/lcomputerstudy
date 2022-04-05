@@ -315,49 +315,6 @@ public class BoardDAO {
 		}
 	}
 
-	public List<Comment> getCommentList(Board board) {
-		Connection conn = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		
-		List<Comment> list = null; 
-		 
-		try {
-			conn = DBConnection.getConnection();
-
-			String sql = "select * from comment where b_idx=?";
-			pstmt = conn.prepareStatement(sql);
-			pstmt.setInt(1, board.getB_idx());
-			rs = pstmt.executeQuery();
-	       
-			list = new ArrayList<Comment>();
-			
-			while(rs.next()){     
-		    	Comment comment = new Comment();
-		       	comment.setC_idx(rs.getInt("c_idx"));
-	       	   	comment.setB_idx(rs.getInt("b_idx"));
-	       	   	comment.setC_comment(rs.getString("c_comment"));
-	       	   	comment.setC_date(rs.getString("c_date"));
-	       	   	comment.setC_order(rs.getInt("c_order"));
-	       	   	comment.setC_group(rs.getInt("c_group"));
-	       	   	comment.setC_depth(rs.getInt("c_depth"));
-	       	         	  	
-	       	   	list.add(comment);
-			}
-		} catch( Exception ex) {
-			ex.printStackTrace();
-		} finally {
-			try {
-				if (pstmt != null) pstmt.close();
-				if (conn != null) conn.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-		
-		return list;
-	}
-	
 	public void commentreplyform(Comment comment) {
 		Connection conn = null;
 		PreparedStatement pstmt = null;
@@ -383,9 +340,7 @@ public class BoardDAO {
 			pstmt.setInt(2, comment.getC_order()+1);
 			pstmt.executeUpdate();
 					
-		
-		
-				
+						
 		} catch( Exception ex) {
 			ex.printStackTrace();
 		} finally {
@@ -397,6 +352,51 @@ public class BoardDAO {
 			}
 		}
 	}
+	public List<Comment> getCommentList(Board board) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		List<Comment> commentList = null; 
+		 
+		try {
+			conn = DBConnection.getConnection();
+
+			String sql = "select * from comment where b_idx=?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, board.getB_idx());
+			rs = pstmt.executeQuery();
+			
+	       
+			commentList = new ArrayList<Comment>();
+			
+			while(rs.next()){     
+		    	Comment comment = new Comment();
+		    	comment.setB_idx(rs.getInt("b_idx"));
+		       	comment.setC_idx(rs.getInt("c_idx"));
+	       	   	comment.setC_comment(rs.getString("c_comment"));
+	       	   	comment.setC_date(rs.getString("c_date"));
+	       	   	comment.setC_group(rs.getInt("c_group"));
+	       	   	comment.setC_order(rs.getInt("c_order"));
+	       	   	comment.setC_depth(rs.getInt("c_depth"));
+	       	         	  	
+	       	   	commentList.add(comment);
+			}
+		} catch( Exception ex) {
+			ex.printStackTrace();
+		} finally {
+			try {
+				if (rs != null) rs.close();
+				if (pstmt != null) pstmt.close();
+				if (conn != null) conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return commentList;
+	}
+	
 	
 
 	

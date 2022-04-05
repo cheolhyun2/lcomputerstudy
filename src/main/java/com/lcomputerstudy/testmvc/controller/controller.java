@@ -63,6 +63,7 @@ public class controller extends HttpServlet {
 		BoardService boardService = null;
 		Comment comment = null;
 		boolean isRedirected = false;
+		int bIdx = 0;
 		
 		switch (command) {
 			
@@ -210,6 +211,8 @@ public class controller extends HttpServlet {
 				
 				case "/commentProcess.do":
 					board = new Board();
+					board.setB_idx(Integer.parseInt(request.getParameter("b_idx")));
+					
 					comment = new Comment();
 					comment.setB_idx(Integer.parseInt(request.getParameter("b_idx")));
 					comment.setC_comment(request.getParameter("c_comment"));
@@ -226,26 +229,28 @@ public class controller extends HttpServlet {
 					break;
 					
 				case "/commentReplyForm.do":
+					bIdx = Integer.parseInt(request.getParameter("b_idx"));
+					
 					board = new Board();
+					board.setB_idx(bIdx);
+					
 					comment = new Comment();
-										
-					comment.setB_idx(Integer.parseInt(request.getParameter("b_idx")));
+					comment.setB_idx(bIdx);
 					comment.setC_comment(request.getParameter("c_comment"));
 					comment.setC_group(Integer.parseInt(request.getParameter("c_group")));
 					comment.setC_order(Integer.parseInt(request.getParameter("c_order")));
 					comment.setC_depth(Integer.parseInt(request.getParameter("c_depth")));
+					
 					boardService = BoardService.getInstance();
 					boardService.commentreplyform(comment);
 					
-					boardService.getCommentList(board);
 					List<Comment> commentList = boardService.getCommentList(board);
 					
 					request.setAttribute("board", board);
-					request.setAttribute("comment", comment);
-					request.setAttribute("comment-list", commentList);
+					request.setAttribute("commentList", commentList);
 					
 					
-					view = "comment-list";
+					view = "board/comment-list";
 					break;
 					
 				
@@ -317,26 +322,7 @@ public class controller extends HttpServlet {
 					view = "replyProcess";
 					break;
 							
-				case "/boardDetail.do":
-					session = request.getSession();
-					
-					board = (Board)session.getAttribute("board");
-					
-					
-					comment.setC_idx(Integer.parseInt(request.getParameter("c_idx")));
-					comment.setC_comment(request.getParameter("c_comment"));
-					comment.setC_date(request.getParameter("c_cdate"));
-					comment.setC_order(Integer.parseInt(request.getParameter("c_order")));
-					comment.setC_group(Integer.parseInt(request.getParameter("c_group")));
-					comment.setC_depth(Integer.parseInt(request.getParameter("c_depth")));
-					comment.setB_idx(board.getB_idx());
-					
-					boardService = BoardService.getInstance();
-					//boardService.comment(comment);
-					
-					view = "boardDetail";
-					break;
-				
+			
 					
 					
 				

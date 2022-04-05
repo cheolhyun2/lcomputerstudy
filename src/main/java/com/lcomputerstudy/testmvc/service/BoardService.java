@@ -64,18 +64,19 @@ public class BoardService {
 		
 			
 	}
-	public List<Comment> getCommentList(Board board) {
-		List<Comment> commentList = dao.getCommentList(board);
-		  return commentList;
-		
-	}
 	
-
 	public void commentreplyform(Comment comment) {
 		dao.commentreplyform(comment);
 		// TODO Auto-generated method stub
 		
 	}
+	
+	public List<Comment> getCommentList(Board board) {
+		List<Comment> commentList = dao.getCommentList(board);
+		  return commentList;
+	}
+	
+
 	
 
 

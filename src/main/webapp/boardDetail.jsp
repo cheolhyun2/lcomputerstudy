@@ -94,7 +94,13 @@
 				<td>${comment.c_comment}</td>
 				<td>작성시간</td>
 				<td>${comment.c_date}</td>
-				<td><button type="button" class="commentForm">댓글추가</button></td>
+				<td>
+					<button type="button" class="commentForm">댓글추가</button>
+					<button type="button" class="commentRetouch">댓글수정</button>
+					<button type="button" class="commentDelete">댓글삭제</button>
+					
+				</td>
+				
 			</tr>
 			<tr style="display: none;">
 				<td colspan="4"><textarea rows="2" name="c_comment" cols="100"></textarea></td>
@@ -103,6 +109,7 @@
 					<button type="button" class="commentCancel">취소</button>
 				</td>
 			</tr>
+			
 		</c:forEach>
 	</table>
 	<script>
@@ -130,7 +137,7 @@
 		  url: "commentReplyForm.do",
 		  data: { b_idx: b_idx, c_group: group, c_order: order, c_depth: depth, c_comment: comment }
 		})
-		.done(function( html ) {
+		.done('click','.commentRed', function( html ) {
 		  //console.log(html);
 		  $('#commentListTbl').html(html);
 		});
