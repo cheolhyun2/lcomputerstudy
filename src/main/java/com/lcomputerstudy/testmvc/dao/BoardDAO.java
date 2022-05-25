@@ -7,11 +7,15 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+
+
 import com.lcomputerstudy.testmvc.database.DBConnection;
 import com.lcomputerstudy.testmvc.vo.Board;
+import com.lcomputerstudy.testmvc.vo.BoardFile;
 import com.lcomputerstudy.testmvc.vo.Comment;
 
 import com.lcomputerstudy.testmvc.vo.Pagination;
+import com.lcomputerstudy.testmvc.vo.Search;
 import com.lcomputerstudy.testmvc.vo.User;
 
 public class BoardDAO {
@@ -41,21 +45,37 @@ public class BoardDAO {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		ArrayList<Board> blist = null;
+	
+		
 		int pageNum = (pagination.getPage()-1)*Pagination.perPage;
+		Search search = pagination.getSearch();
+		
+		String where = "";
+		if (search != null && search.getSelectBox() != null && (!search.getSelectBox().equals("")) && search.getSearchText() != null && (!search.getSearchText().equals(""))) {
+			where += "WHERE " + search.getSelectBox() + " LIKE ? ";
+		}
 		
 		try {
 			conn = DBConnection.getConnection();
 			String query = new StringBuilder()
 					.append("SELECT 		@ROWNUM := @ROWNUM - 1 AS ROWNUM,\n")
 					.append("				ta.*\n")
-					.append("FROM 			board ta,\n")
-					.append("				(SELECT @rownum := (SELECT	COUNT(*)-?+1 FROM board ta)) tb\n")
+					.append("FROM 			board ta\n")
+					.append("LEFT JOIN		boardfile tc ON ta.b_idx = tc.b_idx \n")
+					.append("INNER JOIN		(SELECT @rownum := (SELECT	COUNT(*)-?+1 FROM board ta)) tb ON 1=1\n")
+					.append(where)
 					.append("ORDER BY 		ta.b_idx desc\n")
 					.append("LIMIT			?, 3\n")
 					.toString();
 	       	pstmt = conn.prepareStatement(query);
-	       	pstmt.setInt(1, pageNum);
-	       	pstmt.setInt(2, pageNum);
+	       	if (search != null && search.getSelectBox() != null && (!search.getSelectBox().equals("")) && search.getSearchText() != null && (!search.getSearchText().equals(""))) {
+	       		pstmt.setInt(1, pageNum);
+	       		pstmt.setString(2, "%"+search.getSearchText()+"%");
+	       		pstmt.setInt(3, pageNum);
+	       	} else {
+		       	pstmt.setInt(1, pageNum);
+		       	pstmt.setInt(2, pageNum);
+	       	}
 	       	rs = pstmt.executeQuery();
 	        blist = new ArrayList<Board>();
 
@@ -69,6 +89,9 @@ public class BoardDAO {
        	       	board.setB_assistant(rs.getString("b_assistant"));
        	       	board.setB_writer(rs.getString("b_writer"));
        	       	board.setB_date(rs.getString("b_date"));
+       	       	BoardFile boardfile = new BoardFile();
+       	
+       	       	boardfile.setBf_filename(rs.getString("bf_filename"));
        	       	
        	       	blist.add(board);
 	        }
@@ -86,54 +109,44 @@ public class BoardDAO {
 		
 		return blist;
 	}
-	public void insertBoard(Board board) {
-		Connection conn = null;
-		PreparedStatement pstmt = null;
-		
-		try {
-			conn = DBConnection.getConnection();
-			String sql = "insert into board(b_title,b_content,b_assistant,b_writer,b_date,u_idx,b_group,b_order,b_depth) values(?,?,0,?,now(),?,0,1,0)";
-			pstmt = conn.prepareStatement(sql);
-			pstmt.setString(1, board.getB_title());
-			pstmt.setString(2, board.getB_content());
-			pstmt.setString(3, board.getB_writer());
-			pstmt.setInt(4, board.getU_idx());
-			pstmt.executeUpdate();
-			pstmt.close();
-			
-			sql = "update board set b_group=last_insert_id() where b_idx = last_insert_id()";
-			pstmt = conn.prepareStatement(sql);
-			pstmt.executeUpdate();
-		
-		} catch( Exception ex) {
-			System.out.println("SQLException : "+ex.getMessage());
-		} finally {
-			try {
-				if (pstmt != null) pstmt.close();
-				if (conn != null) conn.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-		
-	}
 	
-	public int getBoardsCount() {
+
+	public int getBoardsCount(Pagination pagination) {
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		int count = 0;
-
+		
+		int pageNum = (pagination.getPage()-1)*Pagination.perPage;
+		Search search = pagination.getSearch();
+	
+	
+		
+		String where = "";
+		if (search != null && search.getSelectBox() != null && (!search.getSelectBox().equals("")) && search.getSearchText() != null && (!search.getSearchText().equals(""))) {
+			where += "WHERE " + search.getSelectBox() + " LIKE ?";
+		}
 		try {
 			conn = DBConnection.getConnection();
-			String query = "SELECT COUNT(*) count FROM board ";
-	       	pstmt = conn.prepareStatement(query);
+			String query = new StringBuilder()
+					.append("SELECT COUNT(*) count FROM board ")
+					.append(where)
+					.toString();
+
+			pstmt = conn.prepareStatement(query);
+		 	if (search != null && search.getSelectBox() != null && (!search.getSelectBox().equals("")) && search.getSearchText() != null && (!search.getSearchText().equals(""))) {
+	       		pstmt.setString(1, "%"+search.getSearchText()+"%");
+		       
+	       	} else {
+	       		
+	       	}
 	        rs = pstmt.executeQuery();
 	        
 	        while(rs.next()){     
 	        	count = rs.getInt("count");
 	        }
 		} catch (Exception e) {
+			e.printStackTrace();
 			
 		} finally {
 			try {
@@ -146,7 +159,99 @@ public class BoardDAO {
 		}
 		return count;
 	}
+	public void insertBoard(Board board) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		try {
+			conn = DBConnection.getConnection();
+			String sql = "insert into board(b_title,b_content,b_assistant,b_writer,b_date,u_idx,b_group,b_order,b_depth) values(?,?,0,?,now(),?,0,1,0)";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, board.getB_title());
+			pstmt.setString(2, board.getB_content());
+			pstmt.setString(3, board.getB_writer());
+			pstmt.setInt(4, board.getU_idx());
+			
+			pstmt.executeUpdate();
+			pstmt.close();
+			
+			sql = "update board set b_group=last_insert_id() where b_idx = last_insert_id()";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.executeUpdate();
+			pstmt.close();
+			
+			sql = "select last_insert_id() b_idx";
+			pstmt = conn.prepareStatement(sql);
+			rs = pstmt.executeQuery();
+	        
+	        while(rs.next()){     
+	        	board.setB_idx(rs.getInt("b_idx"));
+	        }
+			
+		
+		} catch( Exception ex) {
+			ex.printStackTrace();
+		} finally {
+			try {
+				if (rs != null) rs.close();
+				if (pstmt != null) pstmt.close();
+				if (conn != null) conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		
+	}
+	public List<BoardFile> insertBoardFile(Board board) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		List<BoardFile> boardFiles = null; 
+		 
+		try {
+			conn = DBConnection.getConnection();
+			String values = "values";
+			for (BoardFile bf : board.getBoardFiles()) {
+				values += "(?,?)";
+				pstmt = conn.prepareStatement(values);
+				pstmt.setInt(1, board.getB_idx());
+				pstmt.setString(2,  board.getBf_filename());
+				pstmt.close();
+			}
+			
 
+			String sql = "insert into boardfile(b_idx, bf_filename) " + values;
+			pstmt = conn.prepareStatement(sql);
+			rs = pstmt.executeQuery();
+			
+	       
+			boardFiles = new ArrayList<BoardFile>();
+			
+			while(rs.next()){     
+		    	BoardFile boardfile = new BoardFile();
+		    	boardfile.setB_idx(rs.getInt("b_idx"));
+		       	boardfile.setBf_filename(rs.getString("bf_filename"));
+	       	   	boardfile.setBf_idx(rs.getInt("bf_idx"));
+	       	         	  	
+	       	   	boardFiles.add(boardfile);
+			}
+		} catch( Exception ex) {
+			ex.printStackTrace();
+		} finally {
+			try {
+				if (rs != null) rs.close();
+				if (pstmt != null) pstmt.close();
+				if (conn != null) conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return boardFiles;
+	}
+	
 	public Board getDetail(Board board) {
 		Connection conn = null;
 		PreparedStatement pstmt = null;
@@ -169,6 +274,7 @@ public class BoardDAO {
        	       	board.setB_assistant(rs.getString("b_assistant"));
        	       	board.setB_writer(rs.getString("b_writer"));
        	       	board.setB_date(rs.getString("b_date"));
+       	       	board.setBf_filename(rs.getString("bf_filename"));
        	       	board.setB_group(rs.getInt("b_group"));
        	       	board.setB_order(rs.getInt("b_order"));
        	       	board.setB_depth(rs.getInt("b_depth"));
@@ -396,9 +502,54 @@ public class BoardDAO {
 		
 		return commentList;
 	}
-	
-	
-
-	
+	public void commentUpdate(Comment comment) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		
+		try {
+			conn = DBConnection.getConnection();
+			String sql = "update comment set c_comment = ? where c_idx =?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, comment.getC_comment());
+			pstmt.setInt(2, comment.getC_idx());
+			pstmt.executeUpdate();
+		
+		} catch( Exception ex) {
+			System.out.println("SQLException : "+ex.getMessage());
+		} finally {
+			try {
+				if (pstmt != null) pstmt.close();
+				if (conn != null) conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		
+	}
+	public void commentDelete(Comment comment) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		
+		try {
+			conn = DBConnection.getConnection();
+			String sql = "delete From comment where c_idx =?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, comment.getC_idx());
+			pstmt.executeUpdate();
+		
+			
+			
+		} catch( Exception ex) {
+			System.out.println("SQLException : "+ ex.getMessage());
+			
+		} finally {
+			try {
+				if (pstmt != null) pstmt.close();
+				if (conn != null) conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 }
 

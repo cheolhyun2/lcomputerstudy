@@ -5,7 +5,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>작품등록 값 받아오기</title>
+<title> 권한주기</title>
 </head>
 <body>
 <%@ include file="db_connection.jsp" %>
@@ -13,23 +13,16 @@
 
 	request.setCharacterEncoding("UTF-8");
 
-	String title = request.getParameter("title");
-	String content = request.getParameter("content");
-	String assistant = request.getParameter("assistant");
-	String writer = request.getParameter("writer");
-	String date = request.getParameter("date");
-	
+	String u_level = request.getParameter("u_level");
+
 	
 	PreparedStatement pstmt = null;
 	
 	try {
-		String sql = "insert into board(b_title,b_content,b_assistant,b_writer,b_date) values(?,?,?,?,?,)";
+		String sql = "update user set u_level = ? where u_idx ";
 		pstmt = conn.prepareStatement(sql);
-		pstmt.setString(1, title);
-		pstmt.setString(2, content);
-		pstmt.setString(3, assistant);
-		pstmt.setString(4, writer);
-		pstmt.setString(5, date);
+		pstmt.setString(1, u_level);
+			
 		pstmt.executeUpdate();
 	} catch(SQLException ex) {
 		System.out.println("SQLException : "+ex.getMessage());

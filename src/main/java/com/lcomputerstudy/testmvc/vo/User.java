@@ -8,6 +8,7 @@ public class User {
 	private String u_name;
 	private String u_tel;
 	private String u_age;
+	private String u_level;
 	private int rownum;
 	
 	public int getU_idx() {
@@ -52,5 +53,12 @@ public class User {
 	public void setRownum(int rownum) {
 		this.rownum = rownum;
 	}
+	public String getU_level() {
+		return u_level;
+	}
+	public void setU_level(String u_level) {
+		this.u_level = u_level;
+	}
+	
 	
 }

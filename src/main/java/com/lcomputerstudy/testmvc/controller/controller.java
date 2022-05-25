@@ -1,7 +1,9 @@
 package com.lcomputerstudy.testmvc.controller;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 
 import javax.servlet.RequestDispatcher;
@@ -16,9 +18,13 @@ import javax.servlet.http.HttpSession;
 import com.lcomputerstudy.testmvc.service.BoardService;
 import com.lcomputerstudy.testmvc.service.UserService;
 import com.lcomputerstudy.testmvc.vo.Board;
+import com.lcomputerstudy.testmvc.vo.BoardFile;
 import com.lcomputerstudy.testmvc.vo.Comment;
 import com.lcomputerstudy.testmvc.vo.Pagination;
+import com.lcomputerstudy.testmvc.vo.Search;
 import com.lcomputerstudy.testmvc.vo.User;
+import com.oreilly.servlet.MultipartRequest;
+import com.oreilly.servlet.multipart.DefaultFileRenamePolicy;
 
 @WebServlet("*.do")
 public class controller extends HttpServlet {
@@ -33,6 +39,7 @@ public class controller extends HttpServlet {
 		doPost(request, response);
 	}
 
+	@SuppressWarnings("null")
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setContentType("text/html; charset=utf-8"); // test
 		request.setCharacterEncoding("utf-8");
@@ -43,14 +50,21 @@ public class controller extends HttpServlet {
 		String view = null;
 		String pw = null;
 		
+	
+	 						
 		int boardcount = 0;
 		int usercount = 0;
 		int page = 1;
 		int count = 0;
 		
-		Pagination pagination = new Pagination();
+		Pagination pagination = null;
+		Search search = null;
 		
 		String reqPage = request.getParameter("page");
+		
+		// upload
+		String path = "C:\\Users\\l8-morning\\Documents\\work10\\lcomputerstudy\\src\\main\\webapp\\img";
+		int size = 1024 * 1024 * 10;
 		
 		
 		
@@ -58,13 +72,15 @@ public class controller extends HttpServlet {
 
 		
 		HttpSession session = null;
-		
+		User user = new User();
 		String idx;
 		BoardService boardService = null;
 		Comment comment = null;
 		boolean isRedirected = false;
 		int bIdx = 0;
+		List<Comment> commentList = null;
 		
+	
 		switch (command) {
 			
 					
@@ -78,11 +94,11 @@ public class controller extends HttpServlet {
 				UserService userService = UserService.getInstance();
 				usercount = userService.getUsersCount();
 				
-								
+				pagination = new Pagination();
 				pagination.setCount(usercount);
 				pagination.setPage(page);
 				pagination.init();
-				
+												
 				ArrayList<User> list = userService.getUsers(pagination);
 				
 				request.setAttribute("list", list);
@@ -91,14 +107,29 @@ public class controller extends HttpServlet {
 				view = "user/list";
 				break;
 				
+				case "/level-insert-process.do":
+									
+				user.setU_idx(Integer.parseInt(request.getParameter("u_idx")));
+				user.setU_level(request.getParameter("u_level"));
+					
+				userService = UserService.getInstance();
+				userService.updateLevel(user);
 				
+				request.setAttribute("user", user);
+						
+				isRedirected = true;
+				view = "user-list.do";
+				break;
+					
+			
+								
 				case "/user-insert.do":
 				view = "user/insert";
 				break;
 				
 				
 				case "/user-insert-process.do":
-				User user = new User();
+				
 				user.setU_id(request.getParameter("login_id"));
 				user.setU_pw(request.getParameter("login_password"));
 				user.setU_name(request.getParameter("name"));
@@ -113,6 +144,7 @@ public class controller extends HttpServlet {
 				case "/user-login.do":
 				view = "user/login";
 				break;
+				
 				
 				
 						
@@ -154,48 +186,93 @@ public class controller extends HttpServlet {
 				
 								
 				case "/board-title-insert-process.do":
+					MultipartRequest multi = null;
+					String fileName = null;    
+				    String originalFileName = null;
+				    String name = null;
+				    File file = null;
+					
 					session = request.getSession();
 					user = (User)session.getAttribute("user");
 					
 					Board board = new Board();
+					BoardFile boardfile = new BoardFile();
+					List<BoardFile> boardFiles = new ArrayList<BoardFile>();
+					try{
+				        multi = new MultipartRequest(request, path, size, "UTF-8", new DefaultFileRenamePolicy());
+				        
+				        // 전송한 전체 파일이름들을 가져온다.
+				        Enumeration files = multi.getFileNames();
+				        while (files.hasMoreElements()) {
+				        	name = (String)files.nextElement();
+				        	fileName = multi.getFilesystemName(name);
+				        	file = multi.getFile(name);
+				        	
+				        	BoardFile bf = new BoardFile();
+				        	bf.setB_idx(bIdx);
+				        	bf.setFilename(fileName);
+				        	
+				        	boardFiles.add(bf);
+				        	
+				        }
+				        board.setBoardFiles(boardFiles);
+				        //boardService.insertBoardFiles(boardFiles);
+				    }catch(Exception e){
+				        e.printStackTrace();
+				    }
 					
-					board.setB_title(request.getParameter("title"));
-					board.setB_content(request.getParameter("content"));
-					board.setB_assistant(request.getParameter("assistant"));
-					board.setB_writer(request.getParameter("writer"));
-					board.setB_date(request.getParameter("date"));
+					board.setB_title(multi.getParameter("b_title"));
+					board.setB_content(multi.getParameter("b_content"));
+					board.setB_assistant(multi.getParameter("b_assistant"));
+					board.setB_writer(multi.getParameter("b_writer"));
+					board.setB_date(multi.getParameter("b_date"));
+					boardfile.setBf_filename(multi.getParameter("b_img"));
+					boardfile.setBf_filename(multi.getParameter("b_img2"));
+					boardfile.setBf_filename(originalFileName);
 					board.setU_idx(user.getU_idx());
+				
 					
 					boardService = BoardService.getInstance();
 					boardService.insertBoard(board);
+					boardService.insertBoardFile(board);
 					
+				
 					view = "board/insert-title-result";
 					break;
-				
+								
 				case "/board-blist.do":
+					boardService = BoardService.getInstance();
 					
 					if (reqPage != null)
 						page = Integer.parseInt(reqPage);
-						
-					boardService = BoardService.getInstance();
-					count = boardService.getBoardsCount();
+				
+					search = new Search();	
+					search.setSelectBox(request.getParameter("selectBox"));
+					search.setSearchText(request.getParameter("searchText"));
 					
 					pagination = new Pagination();
-					pagination.setCount(count);
+					pagination.setSearch(search);
 					pagination.setPage(page);
+					pagination.setCount(boardService.getBoardsCount(pagination));
 					pagination.init();
+					
 					ArrayList<Board> blist = boardService.getBoards(pagination);
-					
-					
-					
+									
 					request.setAttribute("blist", blist);
 					request.setAttribute("pagination", pagination);
+					
 
 					
 					view = "board/blist";
 					break;
-					
+				
+				
 				case "/board-Detail.do":
+					idx = request.getParameter("login_id");
+					pw = request.getParameter("login_password");
+					session = request.getSession();
+					user = (User)session.getAttribute("user");
+			    		
 					// 파라미터 받아옴
 					board = new Board();
 					board.setB_idx(Integer.parseInt(request.getParameter("b_idx")));
@@ -244,7 +321,7 @@ public class controller extends HttpServlet {
 					boardService = BoardService.getInstance();
 					boardService.commentreplyform(comment);
 					
-					List<Comment> commentList = boardService.getCommentList(board);
+					commentList = boardService.getCommentList(board);
 					
 					request.setAttribute("board", board);
 					request.setAttribute("commentList", commentList);
@@ -253,8 +330,49 @@ public class controller extends HttpServlet {
 					view = "board/comment-list";
 					break;
 					
+				case "/commentUpdate.do":
+										
+					comment = new Comment();
+					comment.setC_comment(request.getParameter("c_comment"));
+					comment.setC_date(request.getParameter("c_date"));
+					comment.setC_idx(Integer.parseInt(request.getParameter("c_idx")));
+					
+					boardService = BoardService.getInstance();
+					boardService.commentUpdate(comment);
+					
+					board = new Board(); 
+					board.setB_idx(Integer.parseInt(request.getParameter("b_idx")));
+					
+					commentList = boardService.getCommentList(board);
+					
+					request.setAttribute("board", board);
+					request.setAttribute("comment", comment);
+					request.setAttribute("commentList", commentList);
+					
+					view = "board/comment-list";
+					break;
+					
+				case "/commentDelete.do":
+					
+					comment = new Comment();
+					comment.setC_idx(Integer.parseInt(request.getParameter("c_idx")));
+									
+					boardService = BoardService.getInstance();
+					boardService.commentDelete(comment);
+					
+					board = new Board(); 
+					board.setB_idx(Integer.parseInt(request.getParameter("b_idx")));
+					
+					commentList = boardService.getCommentList(board);
+					
+					request.setAttribute("board", board);
+					request.setAttribute("comment", comment);
+					request.setAttribute("commentList", commentList);
+					
+					view = "board/comment-list";
+					break;
 				
-								
+				
 				case "/boardEdit.do":
 					board = new Board();
 					board.setB_idx(Integer.parseInt(request.getParameter("b_idx")));
@@ -351,6 +469,7 @@ public class controller extends HttpServlet {
 				,"/logout.do"
 				,"/board-insert-title.do"
 				,"/board-insert-title-process.do"
+				,"/level-insert-process.do"
 			};
 		
 		for (String item : authList) {

@@ -6,6 +6,7 @@ import java.util.List;
 import com.lcomputerstudy.testmvc.dao.BoardDAO;
 import com.lcomputerstudy.testmvc.dao.UserDAO;
 import com.lcomputerstudy.testmvc.vo.Board;
+import com.lcomputerstudy.testmvc.vo.BoardFile;
 import com.lcomputerstudy.testmvc.vo.Comment;
 
 import com.lcomputerstudy.testmvc.vo.Pagination;
@@ -33,9 +34,10 @@ public class BoardService {
 	}
 	public void insertBoard(Board board) {
 		dao.insertBoard(board);
+		//dao.insertBoardFiles(board);
 	}
-	public int getBoardsCount() {
-		return dao.getBoardsCount();
+	public int getBoardsCount(Pagination pagination) {
+		return dao.getBoardsCount(pagination);
 	}
 
 	public Board getDetail(Board board) {
@@ -75,9 +77,25 @@ public class BoardService {
 		List<Comment> commentList = dao.getCommentList(board);
 		  return commentList;
 	}
-	
 
-	
+	public void commentUpdate(Comment comment) {
+		dao.commentUpdate(comment);;
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void commentDelete(Comment comment) {
+		dao.commentDelete(comment);
+		// TODO Auto-generated method stub
+		
+	}
+	public List<BoardFile> insertBoardFile(Board board) {
+		List<BoardFile> boardFiles = dao.insertBoardFile(board);
+		return boardFiles;
+	}
+
+
+
 
 
 }

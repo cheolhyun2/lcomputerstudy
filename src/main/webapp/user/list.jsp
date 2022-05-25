@@ -48,17 +48,31 @@
 <h1>회원 목록</h1>
 	<table >
 		<tr>
-			<td colspan="3">전체 회원 수 : ${pagination.count}</td>
+			<td colspan="5">전체 회원 수 : ${pagination.count}</td>
 		<tr>
 			<th>No</th>
 			<th>ID</th>
 			<th>이름</th>
+			<th>권한</th>
+			<th>권한변경</th>
 		</tr>
-		<c:forEach items="${list}" var="item" varStatus="status">
+		<c:forEach items="${list}" var="user" varStatus="status">
 			 <tr>
-				<td><a href="user-detail.do?u_idx=${item.u_idx}">${item.rownum}</a></td>
-				<td>${item.u_id}</td>
-				<td>${item.u_name}</td>
+				<td><a href="user-detail.do?u_idx=${user.u_idx}">${user.rownum}</a></td>
+				<td>${user.u_id}</td>
+				<td>${user.u_name}</td>
+				<td>${user.u_level}</td>
+				<td>
+					<form action = "level-insert-process.do" method="post">
+						<input type="hidden" name="u_idx" value="${user.u_idx}">
+						<select name = "u_level">
+							<option	value = "1">관리자</option>
+							<option value = "3">사용자</option>
+										
+						</select>
+						<button type = "submit">권한변경</button>
+					</form>
+				</td>
 		     <tr>
 		</c:forEach>
 	</table>

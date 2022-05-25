@@ -81,6 +81,7 @@ public class UserDAO {
        	       	user.setU_name(rs.getString("u_name"));
        	       	user.setU_tel(rs.getString("u_tel"));
        	       	user.setU_age(rs.getString("u_age"));
+       	       	user.setU_level(rs.getString("u_level"));
        	       	
        	       	list.add(user);
 	        }
@@ -148,11 +149,36 @@ public class UserDAO {
 	        	user.setU_pw(rs.getString("u_pw"));
 	        	user.setU_id(rs.getString("u_id"));
 	        	user.setU_name(rs.getString("u_name"));
+	        	user.setU_level(rs.getString("u_level"));
 		   }
 		
 		} catch( Exception ex) {
 			System.out.println("SQLException : "+ex.getMessage());
 		
+		} finally {
+			try {
+				if (pstmt != null) pstmt.close();
+				if (conn != null) conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return user;
+	}
+	
+	public User getlevel(User user) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+			
+		try {
+			conn = DBConnection.getConnection();
+			String sql = "update user set u_level = ? where u_idx = ?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, user.getU_level());
+			pstmt.setInt(2, user.getU_idx());
+			pstmt.executeUpdate();
+		} catch( Exception ex) {
+			System.out.println("SQLException : "+ex.getMessage());
 		} finally {
 			try {
 				if (pstmt != null) pstmt.close();

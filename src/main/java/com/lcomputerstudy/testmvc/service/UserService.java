@@ -11,7 +11,7 @@ public class UserService {
 	private static UserService service = null;
 	private static UserDAO dao = null;
     
-	private UserService() {
+	public UserService() {
 		
 	}
 
@@ -39,6 +39,17 @@ public class UserService {
 		return dao.loginUser(idx,pw);
 	}
 
+	public User getlevel(User user) {
+		return dao.getlevel(user);
+				
+	}
+
+	public User updateLevel(User user) {
+		return dao.getlevel(user);
+		
+	}
+
+	
 	
 	
 }

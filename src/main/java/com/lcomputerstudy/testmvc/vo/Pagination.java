@@ -3,14 +3,15 @@ package com.lcomputerstudy.testmvc.vo;
 import com.lcomputerstudy.testmvc.service.UserService;
 
 public class Pagination {
-	int count;      
+	int count;
 	int page;           
 	int pageNum;        
 	int startPage;     
 	int endPage;      
 	int lastPage;     
 	int prevPage;     
-	int nextPage;     
+	int nextPage;
+	Search search;
 	public static final int pageUnit=5;  
 	public static final int perPage=3;   
 	
@@ -27,6 +28,7 @@ public class Pagination {
 		prevPage=(startPage-pageUnit);
 		nextPage=(startPage+pageUnit);
 	}
+	
 	
 	public int getCount() {
 		return count;
@@ -81,6 +83,14 @@ public class Pagination {
 	}
 	public void setNextPage(int nextPage) {
 		this.nextPage = nextPage;
+	}
+
+	public Search getSearch() {
+		return search;
+	}
+
+	public void setSearch(Search search) {
+		this.search = search;
 	}
 	
 }

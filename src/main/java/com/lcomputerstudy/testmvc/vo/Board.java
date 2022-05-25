@@ -10,6 +10,7 @@ public class Board {
 	private String b_assistant;
 	private String b_writer;
 	private String b_date;
+	private String bf_filename;
 	private int u_idx;
 	private int rownum;
 	private int b_group;
@@ -17,7 +18,16 @@ public class Board {
 	private int b_depth;
 	private User user;
 	private List<Comment> commentList;
+	private List<BoardFile> boardFiles;
 	
+
+	
+	public List<BoardFile> getBoardFiles() {
+		return boardFiles;
+	}
+	public void setBoardFiles(List<BoardFile> boardFiles) {
+		this.boardFiles = boardFiles;
+	}
 	public int getB_group() {
 		return b_group;
 	}
@@ -97,6 +107,16 @@ public class Board {
 	public void setCommentList(List<Comment> commentList) {
 		this.commentList = commentList;
 	}
+	
+	public String getBf_filename() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	public void setBf_filename(String string) {
+		// TODO Auto-generated method stub
+		
+	}
+	
 	
 	
 }

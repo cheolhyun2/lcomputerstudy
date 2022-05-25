@@ -15,6 +15,10 @@
 		border-collapse:collapse;
 		margin:40px auto;
 	}
+	td	{
+	
+		text-align:center;
+	}
 	table tr th {
 		font-weight:700;
 	}
@@ -56,6 +60,7 @@
 			<th>조회수</th>
 			<th>작성자</th>
 			<th>작성일자</th>
+			<th>이미지</th>
 		</tr>
 		<c:forEach items="${blist}" var="item" varStatus="status">
 			 <tr>
@@ -65,11 +70,28 @@
 				<td>${item.b_assistant}</td>
 				<td>${item.b_writer}</td>
 				<td>${item.b_date}</td>
+				<td>${item.bf_filename}</td>
 		     <tr>
 		</c:forEach>
-	</table>
+	
+		<tr align ="center">
+			<td colspan="7">
+				<form action="board-blist.do" method="GET">
+					<select name = "selectBox" >
+						<option value = "b_title"> 제목으로 검색</option>
+						<option value = "b_content"> 내용으로 검색 </option>
+						<option value = "b_writer"> 이름으로 검색</option>
+						
+					</select>
+				
+					<input type= "text" name = "searchText">
+					<input type= "submit" value="검색" >
+				</form>
+			</td>
+		</tr>
+		</table>
 	<div>
-		<ul>
+		<ul> 
 			 <c:choose>
 				<c:when test="${pagination.prevPage < 5}">
 					<li>

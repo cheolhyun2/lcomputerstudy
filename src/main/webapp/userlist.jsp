@@ -41,11 +41,13 @@
 	       	       String u_idx = rs.getString("u_idx");
 	               String u_id = rs.getString("u_id");
 	               String u_name = rs.getString("u_name");
+	               String u_level = rs.getString("u_idx");
 	     %>
 	     <tr>
 	     	<td><a href="userDetail.jsp?u_idx=<%=u_idx%>"><%=u_idx %></a></td>
 	     	<td> <%=u_id %> </td>
 			<td> <%=u_name %> </td>
+			<td> <%=u_level %> </td>
 			
 	     <tr>
 	     
