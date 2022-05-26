@@ -71,6 +71,7 @@
 				<td>${item.b_writer}</td>
 				<td>${item.b_date}</td>
 				<td>${item.bf_filename}</td>
+				
 		     <tr>
 		</c:forEach>
 	

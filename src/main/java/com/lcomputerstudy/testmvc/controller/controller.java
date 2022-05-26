@@ -210,13 +210,14 @@ public class controller extends HttpServlet {
 				        	
 				        	BoardFile bf = new BoardFile();
 				        	bf.setB_idx(bIdx);
-				        	bf.setFilename(fileName);
+				        	bf.setFileName(fileName);
 				        	
 				        	boardFiles.add(bf);
 				        	
 				        }
 				        board.setBoardFiles(boardFiles);
-				        //boardService.insertBoardFiles(boardFiles);
+				        boardService = BoardService.getInstance();
+				        boardService.insertBoardFile(board);
 				    }catch(Exception e){
 				        e.printStackTrace();
 				    }
@@ -226,9 +227,6 @@ public class controller extends HttpServlet {
 					board.setB_assistant(multi.getParameter("b_assistant"));
 					board.setB_writer(multi.getParameter("b_writer"));
 					board.setB_date(multi.getParameter("b_date"));
-					boardfile.setBf_filename(multi.getParameter("b_img"));
-					boardfile.setBf_filename(multi.getParameter("b_img2"));
-					boardfile.setBf_filename(originalFileName);
 					board.setU_idx(user.getU_idx());
 				
 					

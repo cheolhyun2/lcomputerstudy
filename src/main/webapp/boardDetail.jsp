@@ -61,6 +61,7 @@
 		<tr>
 			<td>이미지</td>
 			<td><img src = "/lcomputerstudy/img/${boardfile.bf_filename}"></td>
+			
 		</tr>		
 		
 		<tr style="height:50px;">

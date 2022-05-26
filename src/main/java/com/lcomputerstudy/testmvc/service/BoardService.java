@@ -34,7 +34,7 @@ public class BoardService {
 	}
 	public void insertBoard(Board board) {
 		dao.insertBoard(board);
-		//dao.insertBoardFiles(board);
+		List<BoardFile> boardfile = dao.insertBoardFile(board);
 	}
 	public int getBoardsCount(Pagination pagination) {
 		return dao.getBoardsCount(pagination);

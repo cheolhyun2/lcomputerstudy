@@ -59,10 +59,11 @@ public class BoardDAO {
 			conn = DBConnection.getConnection();
 			String query = new StringBuilder()
 					.append("SELECT 		@ROWNUM := @ROWNUM - 1 AS ROWNUM,\n")
-					.append("				ta.*\n")
+					.append("				ta.*,\n")
+					.append("				tb.*\n")
 					.append("FROM 			board ta\n")
-					.append("LEFT JOIN		boardfile tc ON ta.b_idx = tc.b_idx \n")
-					.append("INNER JOIN		(SELECT @rownum := (SELECT	COUNT(*)-?+1 FROM board ta)) tb ON 1=1\n")
+					.append("LEFT JOIN		boardfile tb ON ta.b_idx = tb.b_idx \n")
+					.append("INNER JOIN		(SELECT @rownum := (SELECT	COUNT(*)-?+1 FROM board ta)) tc ON 1=1\n")
 					.append(where)
 					.append("ORDER BY 		ta.b_idx desc\n")
 					.append("LIMIT			?, 3\n")
@@ -90,9 +91,7 @@ public class BoardDAO {
        	       	board.setB_writer(rs.getString("b_writer"));
        	       	board.setB_date(rs.getString("b_date"));
        	       	BoardFile boardfile = new BoardFile();
-       	
-       	       	boardfile.setBf_filename(rs.getString("bf_filename"));
-       	       	
+       	       	boardfile.setFileName(rs.getString("bf_filename"));
        	       	blist.add(board);
 	        }
 		} catch (Exception e) {
@@ -217,23 +216,29 @@ public class BoardDAO {
 				values += "(?,?)";
 				pstmt = conn.prepareStatement(values);
 				pstmt.setInt(1, board.getB_idx());
-				pstmt.setString(2,  board.getBf_filename());
+				pstmt.setString(2,  board.getFileName());
+				pstmt.executeUpdate();
 				pstmt.close();
 			}
 			
 
 			String sql = "insert into boardfile(b_idx, bf_filename) " + values;
 			pstmt = conn.prepareStatement(sql);
+			pstmt.executeUpdate();
+			pstmt.close();
+			
+			sql = "SELECT * from board ta left join boardfile tb ON ta.b_idx = tb.b_idx where ta.b_idx = ? ";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, board.getB_idx());
 			rs = pstmt.executeQuery();
 			
-	       
 			boardFiles = new ArrayList<BoardFile>();
 			
 			while(rs.next()){     
 		    	BoardFile boardfile = new BoardFile();
 		    	boardfile.setB_idx(rs.getInt("b_idx"));
-		       	boardfile.setBf_filename(rs.getString("bf_filename"));
-	       	   	boardfile.setBf_idx(rs.getInt("bf_idx"));
+		       	boardfile.setFileName(rs.getString("bf_filename"));
+		       	boardfile.setBf_idx(rs.getInt("bf_idx"));
 	       	         	  	
 	       	   	boardFiles.add(boardfile);
 			}

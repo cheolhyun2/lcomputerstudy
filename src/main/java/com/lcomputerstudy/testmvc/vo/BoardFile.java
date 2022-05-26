@@ -4,7 +4,7 @@ public class BoardFile {
 	private int b_idx;
 	private int bf_idx;
 	private String fileName;
-	private String bf_filename;
+
 	
 	public int getB_idx() {
 		return b_idx;
@@ -18,17 +18,11 @@ public class BoardFile {
 	public void setBf_idx(int bf_idx) {
 		this.bf_idx = bf_idx;
 	}
-	public String getFilename() {
+	public String getFileName() {
 		return fileName;
 	}
-	public void setFilename(String filename) {
+	public void setFileName(String fileName) {
 		this.fileName = fileName;
-	}
-	public String getBf_filename() {
-		return bf_filename;
-	}
-	public void setBf_filename(String bf_filename) {
-		this.bf_filename = bf_filename;
 	}
 
 

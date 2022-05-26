@@ -11,16 +11,25 @@ public class Board {
 	private String b_writer;
 	private String b_date;
 	private String bf_filename;
+	private int bf_idx;
+	private String FileName;
 	private int u_idx;
 	private int rownum;
 	private int b_group;
+	
 	private int b_order;
 	private int b_depth;
 	private User user;
 	private List<Comment> commentList;
 	private List<BoardFile> boardFiles;
 	
-
+	
+	public String getFileName() {
+		return FileName;
+	}
+	public void setFileName(String fileName) {
+		FileName = fileName;
+	}
 	
 	public List<BoardFile> getBoardFiles() {
 		return boardFiles;
@@ -114,9 +123,13 @@ public class Board {
 	}
 	public void setBf_filename(String string) {
 		// TODO Auto-generated method stub
-		
 	}
-	
-	
+	public int getBf_idx() {
+		return bf_idx;
+	}
+	public void setBf_idx(int bf_idx) {
+		this.bf_idx = bf_idx;
+	}
+
 	
 }
